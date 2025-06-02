@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Camera Recorder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for a modern look */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Softer shadow */
+            padding: 2.5rem;
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            background-color: #000;
+            border-radius: 1rem;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px; /* Minimum height for smaller screens */
+        }
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensure video covers the area */
+            border-radius: 1rem;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap; /* Allow buttons to wrap on small screens */
+            gap: 1rem;
+            justify-content: center;
+        }
+        .button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem; /* Rounded buttons */
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+        }
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        #recordButton {
+            background-color: #ef4444; /* Red for record */
+            color: white;
+        }
+        #stopButton {
+            background-color: #f97316; /* Orange for stop */
+            color: white;
+        }
+        #downloadButton {
+            background-color: #22c55e; /* Green for download */
+            color: white;
+        }
+        #playbackButton {
+            background-color: #3b82f6; /* Blue for playback */
+            color: white;
+        }
+        #messageBox {
+            background-color: #fefcbf;
+            color: #8a6400;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #fde047;
+            text-align: center;
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Web Camera Recorder</h1>
+
+        <div class="video-wrapper">
+            <video id="liveVideo" autoplay muted playsinline class="rounded-xl shadow-lg"></video>
+            <div id="noCameraMessage" class="absolute inset-0 flex items-center justify-center text-gray-500 text-lg p-4 text-center hidden">
+                <p>No camera detected or access denied. Please allow camera access to use the recorder.</p>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="recordButton" class="button">
+                Record
+            </button>
+            <button id="stopButton" class="button" disabled>
+                Stop
+            </button>
+            <button id="playbackButton" class="button" disabled>
+                Play Recorded Video
+            </button>
+            <button id="downloadButton" class="button" disabled>
+                Download Video
+            </button>
+        </div>
+
+        <div class="video-wrapper hidden" id="recordedVideoWrapper">
+            <video id="recordedVideo" controls playsinline class="rounded-xl shadow-lg"></video>
+        </div>
+
+        <div id="messageBox" class="message-box"></div>
+    </div>
+
+    <script>
+        // Get references to DOM elements
+        const liveVideo = document.getElementById('liveVideo');
+        const recordedVideo = document.getElementById('recordedVideo');
+        const recordButton = document.getElementById('recordButton');
+        const stopButton = document.getElementById('stopButton');
+        const playbackButton = document.getElementById('playbackButton');
+        const downloadButton = document.getElementById('downloadButton');
+        const recordedVideoWrapper = document.getElementById('recordedVideoWrapper');
+        const noCameraMessage = document.getElementById('noCameraMessage');
+        const messageBox = document.getElementById('messageBox');
+
+        let mediaRecorder;
+        let recordedChunks = [];
+        let stream; // To store the camera stream
+
+        /**
+         * Displays a message in the message box.
+         * @param {string} message - The message to display.
+         * @param {string} type - The type of message (e.g., 'success', 'error', 'info').
+         */
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.style.display = 'block';
+
+            // Clear previous classes and apply new ones based on type
+            messageBox.className = 'message-box'; // Reset classes
+            if (type === 'error') {
+                messageBox.classList.add('bg-red-100', 'text-red-800', 'border-red-400');
+            } else if (type === 'success') {
+                messageBox.classList.add('bg-green-100', 'text-green-800', 'border-green-400');
+            } else { // info or default
+                messageBox.classList.add('bg-blue-100', 'text-blue-800', 'border-blue-400');
+            }
+
+            // Hide message after a few seconds
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 5000);
+        }
+
+        /**
+         * Initializes the camera and starts displaying the live feed.
+         */
+        async function initCamera() {
+            try {
+                // Request access to the user's camera
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                liveVideo.srcObject = stream; // Set the video source to the camera stream
+                recordButton.disabled = false; // Enable record button once camera is ready
+                noCameraMessage.classList.add('hidden'); // Hide no camera message
+                showMessage('Camera access granted. Ready to record.', 'success');
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                recordButton.disabled = true; // Disable record button if camera access fails
+                noCameraMessage.classList.remove('hidden'); // Show no camera message
+                showMessage('Failed to access camera. Please ensure camera is connected and permissions are granted.', 'error');
+            }
+        }
+
+        /**
+         * Starts the video recording.
+         */
+        function startRecording() {
+            recordedChunks = []; // Clear previous recordings
+            recordedVideoWrapper.classList.add('hidden'); // Hide recorded video section
+            recordedVideo.src = ''; // Clear previous recorded video source
+
+            // Create a MediaRecorder instance from the camera stream
+            mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp8,opus' });
+
+            // Event handler for when data is available (chunks of video)
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    recordedChunks.push(event.data); // Add the chunk to the array
+                }
+            };
+
+            // Event handler for when recording stops
+            mediaRecorder.onstop = () => {
+                // Create a Blob from the recorded chunks
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob); // Create a URL for the Blob
+
+                recordedVideo.src = url; // Set the recorded video source
+                recordedVideoWrapper.classList.remove('hidden'); // Show recorded video section
+                playbackButton.disabled = false; // Enable playback button
+                downloadButton.disabled = false; // Enable download button
+                showMessage('Recording stopped. Video is ready for playback/download.', 'info');
+            };
+
+            mediaRecorder.start(); // Start recording
+            recordButton.disabled = true; // Disable record button
+            stopButton.disabled = false; // Enable stop button
+            playbackButton.disabled = true; // Disable playback during recording
+            downloadButton.disabled = true; // Disable download during recording
+            showMessage('Recording started...', 'info');
+        }
+
+        /**
+         * Stops the video recording.
+         */
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop(); // Stop the recorder
+                recordButton.disabled = false; // Enable record button
+                stopButton.disabled = true; // Disable stop button
+            }
+        }
+
+        /**
+         * Plays the recorded video.
+         */
+        function playRecordedVideo() {
+            if (recordedVideo.src) {
+                recordedVideo.play();
+                showMessage('Playing recorded video...', 'info');
+            } else {
+                showMessage('No recorded video available to play.', 'error');
+            }
+        }
+
+        /**
+         * Downloads the recorded video.
+         */
+        function downloadVideo() {
+            if (recordedChunks.length === 0) {
+                showMessage('No video recorded yet to download.', 'error');
+                return;
+            }
+
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); // Create a temporary anchor element
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'webcam_recording_' + new Date().toISOString().slice(0, 19).replace(/[:T-]/g, '') + '.webm'; // Set filename
+            document.body.appendChild(a);
+            a.click(); // Programmatically click the link to trigger download
+            window.URL.revokeObjectURL(url); // Clean up the URL
+            document.body.removeChild(a); // Remove the temporary anchor
+            showMessage('Video download initiated.', 'success');
+        }
+
+        // Event Listeners
+        recordButton.addEventListener('click', startRecording);
+        stopButton.addEventListener('click', stopRecording);
+        playbackButton.addEventListener('click', playRecordedVideo);
+        downloadButton.addEventListener('click', downloadVideo);
+
+        // Initialize camera when the window loads
+        window.onload = initCamera;
+    </script>
+</body>
+</html>
