@@ -1,0 +1,196 @@
+/* Basic Reset & Font */
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif; /* Fallback to sans-serif */
+    background-color: #f8f8f8; /* Light background as seen in the image */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Full viewport height */
+    padding: 20px;
+    box-sizing: border-box; /* Include padding in element's total width and height */
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap; /* Allows items to wrap onto the next line on smaller screens */
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    max-width: 900px; /* Max width to resemble the image's proportions */
+    width: 100%;
+    overflow: hidden; /* Ensures rounded corners are respected by children */
+}
+
+/* Left Content Section */
+.content-left {
+    flex: 1 1 400px; /* Allows this div to grow/shrink, with a base of 400px */
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Vertically center content */
+}
+
+.tagline {
+    color: #777;
+    font-size: 1rem; /* 16px */
+    margin-bottom: 10px;
+}
+
+.title {
+    font-size: 3.125rem; /* 50px */
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 20px;
+    line-height: 1.1; /* Tighter line height for stacked text */
+}
+
+.description {
+    color: #555;
+    font-size: 1rem; /* 16px */
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.contact-button {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-size: 1.125rem; /* 18px */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    align-self: flex-start; /* Align button to the start, not stretched */
+}
+
+.contact-button:hover {
+    background-color: #555;
+}
+
+/* Right Image Section */
+.image-right {
+    flex: 1 1 400px; /* Allows this div to grow/shrink, with a base of 400px */
+    position: relative;
+    min-height: 300px; /* Ensure a minimum height for image on smaller screens */
+    border-radius: 0 12px 12px 0; /* Match container border-radius */
+    overflow: hidden;
+}
+
+.main-image {
+    width: 100%;
+    height: 100%; /* Occupy full height of its container */
+    object-fit: cover; /* Ensures the image covers the area without distortion */
+    display: block; /* Removes extra space below image */
+}
+
+/* Decorative Shapes */
+.shape {
+    position: absolute;
+    border-radius: 10px; /* Default border-radius */
+    z-index: 1; /* Above image but below dots/lines */
+}
+
+.shape-top-right {
+    top: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background-color: #ff6b6b; /* Reddish color */
+    border-radius: 10px 0 10px 0; /* Specific border-radius from image */
+}
+
+.shape-bottom-left {
+    bottom: 30px;
+    left: 30px;
+    width: 80px;
+    height: 80px;
+    background-color: #20ad73; /* Greenish color */
+    border-radius: 0 10px 0 10px; /* Specific border-radius from image */
+}
+
+.small-dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #333;
+    border-radius: 50%;
+    z-index: 2; /* Above shapes */
+}
+
+.dot-top-left {
+    top: 10px;
+    left: 10px;
+}
+
+.dot-bottom-right {
+    bottom: 35px;
+    right: 15px;
+}
+
+.line {
+    position: absolute;
+    width: 30px;
+    height: 1px;
+    background-color: #333;
+    z-index: 2; /* Above shapes */
+}
+
+.line-top-left {
+    top: 15px;
+    left: 30px;
+}
+
+.line-bottom-right {
+    bottom: 40px;
+    right: 20px;
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column; /* Stack items vertically on smaller screens */
+        max-width: 500px; /* Adjust max-width for better mobile viewing */
+    }
+
+    .content-left, .image-right {
+        flex: 1 1 100%; /* Take full width */
+        padding: 30px; /* Slightly less padding */
+    }
+
+    .title {
+        font-size: 2.5rem; /* Smaller font size for mobile */
+    }
+
+    .image-right {
+        border-radius: 0 0 12px 12px; /* Adjust border-radius for stacked layout */
+        min-height: 250px; /* Smaller min-height for mobile */
+    }
+    .shape-top-right, .shape-bottom-left, .small-dot, .line {
+        /* Adjust positions or sizes for smaller screens if needed,
+           or keep them relative to parent container's new size */
+        /* Example: slightly smaller shapes */
+        width: 40px;
+        height: 40px;
+    }
+    .shape-top-right { top: 10px; right: 10px; }
+    .shape-bottom-left { bottom: 10px; left: 10px; }
+    .dot-top-left { top: 5px; left: 5px; }
+    .line-top-left { top: 8px; left: 20px; width: 20px; }
+    .dot-bottom-right { bottom: 20px; right: 10px; }
+    .line-bottom-right { bottom: 25px; right: 10px; width: 20px; }
+}
+
+@media (max-width: 480px) {
+    .content-left {
+        padding: 20px;
+    }
+    .title {
+        font-size: 2rem;
+    }
+    .contact-button {
+        padding: 12px 25px;
+        font-size: 1rem;
+    }
+}

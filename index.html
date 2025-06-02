@@ -3,508 +3,288 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhonePe Mockup</title>
+    <title>Web Camera Recorder</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Custom styles for a modern look */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f2f5; /* Light gray background */
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Align content to top */
+            align-items: center;
             min-height: 100vh;
-            padding: 1rem;
+            padding: 20px;
             box-sizing: border-box;
-            overflow-x: hidden; /* Prevent horizontal scroll */
         }
-        .phonepe-mockup {
+        .container {
             background-color: #ffffff;
-            border-radius: 1.5rem; /* Rounded corners for the "phone" frame */
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); /* Soft shadow */
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Softer shadow */
+            padding: 2.5rem;
+            max-width: 900px;
             width: 100%;
-            max-width: 420px; /* Typical phone width */
-            min-height: 700px; /* Minimum height for better simulation */
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Hide overflow for internal scrolling */
+            gap: 2rem;
+        }
+        .video-wrapper {
             position: relative;
-            margin-bottom: 5rem; /* Space for fixed bottom bar */
-        }
-        .header {
-            background-color: #6739B7; /* PhonePe's purple */
-            color: white;
-            padding: 1.25rem 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .header .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        .header .user-profile img {
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 50%;
-            border: 2px solid white;
-            object-fit: cover;
-        }
-        .main-content {
-            flex-grow: 1;
-            padding: 1rem;
-            overflow-y: auto; /* Enable scrolling for content */
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-        }
-        .upi-options-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-        .upi-option {
-            background-color: #F8F8F8; /* Lighter background for options */
-            padding: 1rem;
-            border-radius: 0.75rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        }
-        .upi-option:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        .upi-option svg {
-            width: 2.5rem;
-            height: 2.5rem;
-            margin-bottom: 0.5rem;
-            color: #6739B7;
-        }
-        .section-card {
-            background-color: #ffffff;
-            border-radius: 1rem;
-            padding: 1.25rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        .bottom-nav {
-            background-color: white;
-            border-top: 1px solid #e2e8f0;
-            padding: 0.5rem 0;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            position: absolute; /* Fixed at the bottom */
-            bottom: 0;
-            left: 0;
-            right: 0;
             width: 100%;
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
-            z-index: 20;
-        }
-        .nav-item {
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            background-color: #000;
+            border-radius: 1rem;
+            overflow: hidden;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            color: #4a5568;
-            font-size: 0.75rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: color 0.2s ease;
+            min-height: 200px; /* Minimum height for smaller screens */
         }
-        .nav-item.active {
-            color: #6739B7;
-        }
-        .nav-item svg {
-            width: 1.5rem;
-            height: 1.5rem;
-            margin-bottom: 0.25rem;
-        }
-
-        /* Payment Modal Styles */
-        .modal-overlay {
-            position: fixed;
+        video {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
+            object-fit: cover; /* Ensure video covers the area */
+            border-radius: 1rem;
+        }
+        .controls {
             display: flex;
+            flex-wrap: wrap; /* Allow buttons to wrap on small screens */
+            gap: 1rem;
             justify-content: center;
-            align-items: center;
-            z-index: 50;
-            transition: opacity 0.3s ease;
-            opacity: 0;
-            pointer-events: none;
         }
-        .modal-overlay.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            width: 90%;
-            max-width: 400px;
-            transform: translateY(20px);
-            transition: transform 0.3s ease;
-        }
-        .modal-overlay.show .modal-content {
-            transform: translateY(0);
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        .modal-close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #4a5568;
-        }
-        .payment-input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            margin-bottom: 1rem;
-            border: 1px solid #cbd5e0;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-        }
-        .payment-button {
-            background-color: #6739B7;
-            color: white;
+        .button {
             padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
+            border-radius: 0.75rem; /* Rounded buttons */
             font-weight: 600;
-            width: 100%;
+            transition: all 0.2s ease-in-out;
             cursor: pointer;
-            transition: background-color 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
         }
-        .payment-button:hover {
-            background-color: #5A32A0;
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
         }
-        .transaction-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #edf2f7;
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
-        .transaction-item:last-child {
-            border-bottom: none;
+        #recordButton {
+            background-color: #ef4444; /* Red for record */
+            color: white;
         }
-        .transaction-details {
-            display: flex;
-            flex-direction: column;
+        #stopButton {
+            background-color: #f97316; /* Orange for stop */
+            color: white;
         }
-        .transaction-amount {
-            font-weight: 600;
+        #downloadButton {
+            background-color: #22c55e; /* Green for download */
+            color: white;
         }
-        .transaction-amount.credit {
-            color: #22c55e; /* Green */
+        #playbackButton {
+            background-color: #3b82f6; /* Blue for playback */
+            color: white;
         }
-        .transaction-amount.debit {
-            color: #ef4444; /* Red */
-        }
-        .notification-card {
-            background-color: #ebf8ff; /* Light blue */
-            border: 1px solid #90cdf4; /* Medium blue border */
-            color: #2b6cb0; /* Dark blue text */
+        #messageBox {
+            background-color: #fefcbf;
+            color: #8a6400;
             padding: 1rem;
             border-radius: 0.75rem;
-            margin-top: 1rem;
+            border: 1px solid #fde047;
             text-align: center;
             display: none; /* Hidden by default */
         }
-        .notification-card.show {
-            display: block;
-        }
     </style>
 </head>
-<body>
-    <div class="phonepe-mockup">
-        <header class="header">
-            <div class="user-profile">
-                <img src="https://via.placeholder.com/100/A050F0/FFFFFF?text=P" alt="User Profile">
-                <div>
-                    <div class="text-xs opacity-80">Your Location</div>
-                    <div class="font-semibold text-sm">Pimpri-Chinchwad, India</div>
-                </div>
-            </div>
-            <div class="flex items-center gap-4">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9.067a3.75 3.75 0 0 0-3.75-3.75H12a3.75 3.75 0 0 0-3.75 3.75v.683a8.967 8.967 0 0 1-2.93 2.523c-.37-.08-.74-.162-1.11-.249ZM15.75 16.5V18a2.25 2.25 0 0 1-2.25 2.25H12a2.25 2.25 0 0 1-2.25-2.25v-1.5m3 2.25H9M15 12.75V9a3 3 0 0 0-3-3m0 0V4.5A2.25 2.25 0 0 1 14.25 2.25h1.5A2.25 2.25 0 0 1 18 4.5V6" />
-                </svg>
-            </div>
-        </header>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Web Camera Recorder</h1>
 
-        <main class="main-content">
-            <div class="section-card">
-                <h2 class="text-lg font-semibold text-gray-700 mb-4">Money Transfer</h2>
-                <div class="upi-options-grid">
-                    <div class="upi-option" id="scanAndPay">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5v15m15-15v15m-15-15h15m-15 15h15M6 9.75h6m-6 4.5h6m-6 4.5h6" />
-                        </svg>
-                        <span>Scan & Pay</span>
-                    </div>
-                    <div class="upi-option" id="toMobileNo">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75A2.25 2.25 0 0 0 15.75 1.5H13.5m-3 0V3m3-1.5V3m-3 18.75h3M9.258 8.25h.375a.375.375 0 1 0 0-.75H9.258a.375.375 0 0 0 0 .75ZM12 9.75h.008v.008H12V9.75ZM12 12.75h.008v.008H12V12.75ZM12 15.75h.008v.008H12V15.75ZM12 18.75h.008v.008H12V18.75Z" />
-                        </svg>
-                        <span>To Mobile No.</span>
-                    </div>
-                    <div class="upi-option" id="toBankUpiId">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9.75h19.5M2.25 12h19.5M2.25 14.25h19.5M2.25 16.5h19.5M2.25 18.75h19.5M12 2.25V21.75M8.25 2.25H6.75a.75.75 0 0 0-.75.75v18a.75.75 0 0 0 .75.75h1.5A.75.75 0 0 0 9 20.25v-18a.75.75 0 0 0-.75-.75Zm7.5 0h-1.5a.75.75 0 0 0-.75.75v18a.75.75 0 0 0 .75.75h1.5a.75.75 0 0 0 .75-.75v-18a.75.75 0 0 0-.75-.75Z" />
-                        </svg>
-                        <span>To Bank/UPI ID</span>
-                    </div>
-                    <div class="upi-option" id="selfTransfer">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21v-9M3 15h3.75L7.5 21m0 0L9.75 3h5.25M7.5 21h7.5M3 15H15m0 0V5.25A2.25 2.25 0 0 0 12.75 3h-1.5A2.25 2.25 0 0 0 9 5.25v9M15 15H21" />
-                        </svg>
-                        <span>Self Transfer</span>
-                    </div>
-                </div>
+        <div class="video-wrapper">
+            <video id="liveVideo" autoplay muted playsinline class="rounded-xl shadow-lg"></video>
+            <div id="noCameraMessage" class="absolute inset-0 flex items-center justify-center text-gray-500 text-lg p-4 text-center hidden">
+                <p>No camera detected or access denied. Please allow camera access to use the recorder.</p>
             </div>
-
-            <div class="section-card flex items-center justify-between">
-                <h2 class="text-lg font-semibold text-gray-700">Bank & Wallets</h2>
-                <button class="text-sm font-semibold text-blue-600">Check Balance</button>
-            </div>
-
-            <div class="section-card">
-                <h2 class="text-lg font-semibold text-gray-700 mb-4">Recharge & Bill Payments</h2>
-                <div class="grid grid-cols-3 gap-4 text-center text-sm font-medium text-gray-600">
-                    <div class="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer">
-                        <img src="https://via.placeholder.com/40/6739B7/FFFFFF?text=M" alt="Mobile" class="mb-2">
-                        Mobile Recharge
-                    </div>
-                    <div class="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer">
-                        <img src="https://via.placeholder.com/40/6739B7/FFFFFF?text=E" alt="Electricity" class="mb-2">
-                        Electricity
-                    </div>
-                    <div class="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer">
-                        <img src="https://via.placeholder.com/40/6739B7/FFFFFF?text=D" alt="DTH" class="mb-2">
-                        DTH
-                    </div>
-                    <div class="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer">
-                        <img src="https://via.placeholder.com/40/6739B7/FFFFFF?text=G" alt="Gas" class="mb-2">
-                        LPG
-                    </div>
-                    <div class="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer">
-                        <img src="https://via.placeholder.com/40/6739B7/FFFFFF?text=W" alt="Water" class="mb-2">
-                        Water
-                    </div>
-                    <div class="flex flex-col items-center p-2 rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer">
-                        <img src="https://via.placeholder.com/40/6739B7/FFFFFF?text=V" alt="View All" class="mb-2">
-                        View All
-                    </div>
-                </div>
-            </div>
-
-            <div class="section-card">
-                <h2 class="text-lg font-semibold text-gray-700 mb-4">Past Transactions</h2>
-                <div class="transaction-history">
-                    <div class="transaction-item">
-                        <div class="transaction-details">
-                            <span class="font-medium text-gray-800">Swiggy</span>
-                            <span class="text-xs text-gray-500">2025-06-02, 08:30 PM</span>
-                        </div>
-                        <span class="transaction-amount debit">- ₹185.00</span>
-                    </div>
-                    <div class="transaction-item">
-                        <div class="transaction-details">
-                            <span class="font-medium text-gray-800">Netflix Subscription</span>
-                            <span class="text-xs text-gray-500">2025-06-01, 10:15 AM</span>
-                        </div>
-                        <span class="transaction-amount debit">- ₹649.00</span>
-                    </div>
-                    <div class="transaction-item">
-                        <div class="transaction-details">
-                            <span class="font-medium text-gray-800">Cashback from Flipkart</span>
-                            <span class="text-xs text-gray-500">2025-05-31, 02:40 PM</span>
-                        </div>
-                        <span class="transaction-amount credit">+ ₹50.00</span>
-                    </div>
-                    <div class="transaction-item">
-                        <div class="transaction-details">
-                            <span class="font-medium text-gray-800">To Akash Sharma</span>
-                            <span class="text-xs text-gray-500">2025-05-30, 07:00 PM</span>
-                        </div>
-                        <span class="transaction-amount debit">- ₹500.00</span>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <nav class="bottom-nav">
-            <div class="nav-item active">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="m11.64 2.16-.07-.03-.09-.036a7.5 7.5 0 0 0-3.86.04l-.1.03-.07.03C4.331 3.23 1.778 5.762 1.282 9.215A4.5 4.5 0 0 0 2.975 13.02a9.003 9.003 0 0 0 5.912 6.557A8.965 8.965 0 0 0 12 22.5a8.965 8.965 0 0 0 3.113-2.923 9.003 9.003 0 0 0 5.912-6.557 4.5 4.5 0 0 0 1.693-3.805c-.496-3.453-3.049-5.985-6.392-7.313Z" />
-                </svg>
-                <span>Home</span>
-            </div>
-            <div class="nav-item">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5m-9 3l-2.25 2.25c-.75.75-1.125 1.69-1.125 2.25V21h4.5m4.5-18v7.5m-9 3l-2.25-2.25c-.75-.75-1.125-1.69-1.125-2.25V3h4.5m1.5 15h2.25m-1.5 3h3.75m-9-15h2.25m-1.5-3h3.75M18 9.75v7.5m3-3l2.25 2.25c.75.75 1.125 1.69 1.125 2.25V21h-4.5m-4.5-18v7.5m3-3l2.25-2.25c.75-.75 1.125-1.69 1.125-2.25V3h-4.5" />
-                </svg>
-                <span>Stores</span>
-            </div>
-            <div class="nav-item">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.018-.36 1.967-.988 2.684A7.443 7.443 0 0 1 12 21a7.443 7.443 0 0 1-8.012-6.316A7.5 7.5 0 0 1 3 12c0-3.376 2.05-6.248 5.06-7.464A4.5 4.5 0 0 1 12 3.75c1.155 0 2.247.346 3.19.957M12 21V3.75" />
-                </svg>
-                <span>Insurance</span>
-            </div>
-            <div class="nav-item">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.305a11.164 11.164 0 0 0 5.815-4.625M15.75 9V7.5a2.25 2.25 0 0 0-2.25-2.25H12a2.25 2.25 0 0 0-2.25 2.25v4.5A2.25 2.25 0 0 0 12 14.25h.75M2.25 18 9 11.25l4.306 4.305a11.164 11.164 0 0 0 5.815-4.625" />
-                </svg>
-                <span>Wealth</span>
-            </div>
-            <div class="nav-item">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.018 0-1.967.36-2.684.988A7.443 7.443 0 0 0 3 12a7.443 7.443 0 0 0-.988 2.684A8.967 8.967 0 0 0 6 20.25c1.018 0 1.967-.36 2.684-.988A7.443 7.443 0 0 0 12 21.75a7.443 7.443 0 0 0 3.316-.988 8.967 8.967 0 0 0 2.684-.988 7.443 7.443 0 0 0 .988-2.684 8.967 8.967 0 0 0 .988-2.684 7.443 7.443 0 0 0-.988-2.684A8.967 8.967 0 0 0 18 3.75c-1.018 0-1.967.36-2.684.988A7.443 7.443 0 0 0 12 2.25Z" />
-                </svg>
-                <span>History</span>
-            </div>
-        </nav>
-    </div>
-
-    <div id="paymentModalOverlay" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="text-xl font-bold text-gray-800" id="modalTitle">Pay to Mobile No.</h3>
-                <button id="closeModalBtn" class="modal-close-btn">&times;</button>
-            </div>
-            <div class="mb-4">
-                <input type="text" id="recipientInput" class="payment-input" placeholder="Enter Mobile No. or UPI ID" required>
-                <input type="number" id="amountInput" class="payment-input" placeholder="Enter Amount" min="1" required>
-            </div>
-            <button id="proceedToPayBtn" class="payment-button">Proceed to Pay</button>
-            <div id="paymentNotification" class="notification-card mt-4"></div>
         </div>
+
+        <div class="controls">
+            <button id="recordButton" class="button">
+                Record
+            </button>
+            <button id="stopButton" class="button" disabled>
+                Stop
+            </button>
+            <button id="playbackButton" class="button" disabled>
+                Play Recorded Video
+            </button>
+            <button id="downloadButton" class="button" disabled>
+                Download Video
+            </button>
+        </div>
+
+        <div class="video-wrapper hidden" id="recordedVideoWrapper">
+            <video id="recordedVideo" controls playsinline class="rounded-xl shadow-lg"></video>
+        </div>
+
+        <div id="messageBox" class="message-box"></div>
     </div>
 
     <script>
-        // Get DOM elements
-        const scanAndPayBtn = document.getElementById('scanAndPay');
-        const toMobileNoBtn = document.getElementById('toMobileNo');
-        const toBankUpiIdBtn = document.getElementById('toBankUpiId');
-        const paymentModalOverlay = document.getElementById('paymentModalOverlay');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const modalTitle = document.getElementById('modalTitle');
-        const recipientInput = document.getElementById('recipientInput');
-        const amountInput = document.getElementById('amountInput');
-        const proceedToPayBtn = document.getElementById('proceedToPayBtn');
-        const paymentNotification = document.getElementById('paymentNotification');
+        // Get references to DOM elements
+        const liveVideo = document.getElementById('liveVideo');
+        const recordedVideo = document.getElementById('recordedVideo');
+        const recordButton = document.getElementById('recordButton');
+        const stopButton = document.getElementById('stopButton');
+        const playbackButton = document.getElementById('playbackButton');
+        const downloadButton = document.getElementById('downloadButton');
+        const recordedVideoWrapper = document.getElementById('recordedVideoWrapper');
+        const noCameraMessage = document.getElementById('noCameraMessage');
+        const messageBox = document.getElementById('messageBox');
+
+        let mediaRecorder;
+        let recordedChunks = [];
+        let stream; // To store the camera stream
 
         /**
-         * Shows the payment modal with a specific title and placeholder.
-         * @param {string} title - The title for the modal.
-         * @param {string} placeholder - The placeholder text for the recipient input.
+         * Displays a message in the message box.
+         * @param {string} message - The message to display.
+         * @param {string} type - The type of message (e.g., 'success', 'error', 'info').
          */
-        function showPaymentModal(title, placeholder) {
-            modalTitle.textContent = title;
-            recipientInput.placeholder = placeholder;
-            recipientInput.value = ''; // Clear previous input
-            amountInput.value = ''; // Clear previous input
-            paymentNotification.classList.remove('show', 'bg-red-100', 'text-red-800', 'border-red-400', 'bg-green-100', 'text-green-800', 'border-green-400'); // Clear previous notification styles
-            paymentModalOverlay.classList.add('show');
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.style.display = 'block';
+
+            // Clear previous classes and apply new ones based on type
+            messageBox.className = 'message-box'; // Reset classes
+            if (type === 'error') {
+                messageBox.classList.add('bg-red-100', 'text-red-800', 'border-red-400');
+            } else if (type === 'success') {
+                messageBox.classList.add('bg-green-100', 'text-green-800', 'border-green-400');
+            } else { // info or default
+                messageBox.classList.add('bg-blue-100', 'text-blue-800', 'border-blue-400');
+            }
+
+            // Hide message after a few seconds
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 5000);
         }
 
-        // Event Listeners for UPI options
-        scanAndPayBtn.addEventListener('click', () => {
-            alert('Simulating Scan & Pay: This would open a camera scanner.');
-        });
+        /**
+         * Initializes the camera and starts displaying the live feed.
+         */
+        async function initCamera() {
+            try {
+                // Request access to the user's camera
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                liveVideo.srcObject = stream; // Set the video source to the camera stream
+                recordButton.disabled = false; // Enable record button once camera is ready
+                noCameraMessage.classList.add('hidden'); // Hide no camera message
+                showMessage('Camera access granted. Ready to record.', 'success');
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                recordButton.disabled = true; // Disable record button if camera access fails
+                noCameraMessage.classList.remove('hidden'); // Show no camera message
+                showMessage('Failed to access camera. Please ensure camera is connected and permissions are granted.', 'error');
+            }
+        }
 
-        toMobileNoBtn.addEventListener('click', () => {
-            showPaymentModal('Pay to Mobile No.', 'Enter Mobile No.');
-        });
+        /**
+         * Starts the video recording.
+         */
+        function startRecording() {
+            recordedChunks = []; // Clear previous recordings
+            recordedVideoWrapper.classList.add('hidden'); // Hide recorded video section
+            recordedVideo.src = ''; // Clear previous recorded video source
 
-        toBankUpiIdBtn.addEventListener('click', () => {
-            showPaymentModal('Pay to Bank/UPI ID', 'Enter Bank A/C or UPI ID');
-        });
+            // Create a MediaRecorder instance from the camera stream
+            mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp8,opus' });
 
-        // Self Transfer is simpler, can be an alert or direct action
-        document.getElementById('selfTransfer').addEventListener('click', () => {
-            alert('Simulating Self Transfer: Transferring between your own accounts.');
-            // In a real app, this would lead to an internal transfer screen
-        });
+            // Event handler for when data is available (chunks of video)
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    recordedChunks.push(event.data); // Add the chunk to the array
+                }
+            };
 
-        // Close Modal Button
-        closeModalBtn.addEventListener('click', () => {
-            paymentModalOverlay.classList.remove('show');
-            paymentNotification.classList.remove('show'); // Hide notification when modal closes
-        });
+            // Event handler for when recording stops
+            mediaRecorder.onstop = () => {
+                // Create a Blob from the recorded chunks
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob); // Create a URL for the Blob
 
-        // Simulate Payment Flow
-        proceedToPayBtn.addEventListener('click', () => {
-            const recipient = recipientInput.value.trim();
-            const amount = parseFloat(amountInput.value);
+                recordedVideo.src = url; // Set the recorded video source
+                recordedVideoWrapper.classList.remove('hidden'); // Show recorded video section
+                playbackButton.disabled = false; // Enable playback button
+                downloadButton.disabled = false; // Enable download button
+                showMessage('Recording stopped. Video is ready for playback/download.', 'info');
+            };
 
-            // Simple validation
-            if (!recipient || !amount || isNaN(amount) || amount <= 0) {
-                paymentNotification.textContent = 'Please enter valid recipient and amount.';
-                paymentNotification.className = 'notification-card show bg-red-100 text-red-800 border-red-400';
+            mediaRecorder.start(); // Start recording
+            recordButton.disabled = true; // Disable record button
+            stopButton.disabled = false; // Enable stop button
+            playbackButton.disabled = true; // Disable playback during recording
+            downloadButton.disabled = true; // Disable download during recording
+            showMessage('Recording started...', 'info');
+        }
+
+        /**
+         * Stops the video recording.
+         */
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop(); // Stop the recorder
+                recordButton.disabled = false; // Enable record button
+                stopButton.disabled = true; // Disable stop button
+            }
+        }
+
+        /**
+         * Plays the recorded video.
+         */
+        function playRecordedVideo() {
+            if (recordedVideo.src) {
+                recordedVideo.play();
+                showMessage('Playing recorded video...', 'info');
+            } else {
+                showMessage('No recorded video available to play.', 'error');
+            }
+        }
+
+        /**
+         * Downloads the recorded video.
+         */
+        function downloadVideo() {
+            if (recordedChunks.length === 0) {
+                showMessage('No video recorded yet to download.', 'error');
                 return;
             }
 
-            // Simulate a delay for payment processing
-            proceedToPayBtn.textContent = 'Processing...';
-            proceedToPayBtn.disabled = true;
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); // Create a temporary anchor element
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'webcam_recording_' + new Date().toISOString().slice(0, 19).replace(/[:T-]/g, '') + '.webm'; // Set filename
+            document.body.appendChild(a);
+            a.click(); // Programmatically click the link to trigger download
+            window.URL.revokeObjectURL(url); // Clean up the URL
+            document.body.removeChild(a); // Remove the temporary anchor
+            showMessage('Video download initiated.', 'success');
+        }
 
-            setTimeout(() => {
-                const isSuccess = Math.random() > 0.2; // 80% success rate for simulation
+        // Event Listeners
+        recordButton.addEventListener('click', startRecording);
+        stopButton.addEventListener('click', stopRecording);
+        playbackButton.addEventListener('click', playRecordedVideo);
+        downloadButton.addEventListener('click', downloadVideo);
 
-                if (isSuccess) {
-                    paymentNotification.textContent = `Payment of ₹${amount.toFixed(2)} to ${recipient} Successful!`;
-                    paymentNotification.className = 'notification-card show bg-green-100 text-green-800 border-green-400';
-                    // In a real app, you'd close the modal and update UI
-                    // For this mock, we'll keep the modal open to show the message
-                } else {
-                    paymentNotification.textContent = `Payment to ${recipient} Failed. Please try again.`;
-                    paymentNotification.className = 'notification-card show bg-red-100 text-red-800 border-red-400';
-                }
-
-                proceedToPayBtn.textContent = 'Proceed to Pay';
-                proceedToPayBtn.disabled = false;
-            }, 1500); // Simulate network delay
-        });
-
-        // Add a simple active state to bottom nav items (for demonstration)
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', () => {
-                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-                item.classList.add('active');
-                // You could add logic here to switch content based on the selected tab
-                // For this mock, we'll just change the active state
-                if (item.textContent.includes('History')) {
-                     alert('Simulating History: This would show your transaction history.');
-                } else if (item.textContent.includes('Stores')) {
-                     alert('Simulating Stores: This would show nearby stores and offers.');
-                }
-            });
-        });
-
+        // Initialize camera when the window loads
+        window.onload = initCamera;
     </script>
 </body>
 </html>
